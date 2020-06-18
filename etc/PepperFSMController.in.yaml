@@ -1,0 +1,196 @@
+---
+# If true, the FSM transitions are managed by an external tool
+Managed: false
+# If true and the FSM is self-managed, transitions should be triggered
+StepByStep: true
+# Change idle behaviour, if true the state is kept until transition,
+# otherwise the FSM holds the last state until transition
+IdleKeepState: true
+# Where to look for state libraries
+StatesLibraries:
+- "@MC_STATES_DEFAULT_INSTALL_PREFIX@"
+- "@MC_STATES_INSTALL_PREFIX@"
+# Where to look for state files
+StatesFiles:
+- "@MC_STATES_DEFAULT_INSTALL_PREFIX@/data"
+- "@MC_STATES_INSTALL_PREFIX@/data"
+# If true, state factory will be more verbose
+VerboseStateFactory: false
+
+# Additional robots to load
+robots:
+  ground:
+    module: env/ground
+
+# General constraints, always on
+constraints:
+- type: contact
+- type: boundedSpeed
+  constraints:
+    - body: base_link
+      lowerSpeed: [0.0, 0.0, -0.5, -0.1, -0.1, 0.0]
+      upperSpeed: [0.0, 0.0, 0.5, 0.1, 0.1, 0.0]
+
+# Collision constraint
+collisions:
+- type: collision
+  useMinimal: true
+
+# Initial set of contacts
+contacts:
+- r1: pepper
+  r2: ground
+  r1Surface: MobileBase
+  r2Surface: AllGround
+  dof: [1.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+
+# Some options for a specific robot
+pepper:
+  posture:
+    stiffness: 1
+    weight: 10
+
+# FSM states
+states:
+  Wait:
+    base: Pause
+    duration: 10.0
+
+  HandTaskStateLeft:
+    base: MetaTasks
+    tasks:
+      leftHandTask:
+        type: relBody6d
+        body: l_wrist
+        relBody: base_link
+        weight: 100.0
+        stiffness: 3.0
+        orientation: [-1.57, 0.0, 0.0]
+        position: [0.3, 0.4, 0.8]
+        completion:
+            - eval: 1e-3
+      lookAtHandTarget:
+        type: lookAtSurface
+        body: CameraTop_optical_frame
+        bodyVector: [0.0, 0.0, 1.0]
+        surface: MobileBase
+        offset:
+          translation: [0.3, 0.4, 0.8]
+        weight: 10.0
+        stiffness: 3.0
+        activeJoints:
+          - HeadYaw
+          - HeadPitch
+
+  HandTaskStateRight:
+    base: MetaTasks
+    tasks:
+      leftHandTask:
+        type: relBody6d
+        body: r_wrist
+        relBody: base_link
+        weight: 100.0
+        stiffness: 3.0
+        orientation: [1.57, 0.0, 0.0]
+        position: [0.3, -0.4, 0.8]
+        completion:
+            - eval: 1e-3
+      lookAtHandTarget:
+        type: lookAtSurface
+        body: CameraTop_optical_frame
+        bodyVector: [0.0, 0.0, 1.0]
+        surface: MobileBase
+        offset:
+          translation: [0.3, -0.4, 0.8]
+        weight: 10.0
+        stiffness: 3.0
+        activeJoints:
+          - HeadYaw
+          - HeadPitch
+
+  HandTaskStateBoth:
+    base: Parallel
+    states:
+      - HandTaskStateLeft
+      - HandTaskStateRight
+
+### Configurations of states defined in c++ ###
+configs:
+  StandStraight:
+    postureTaskCompletion: 0.7
+
+# Transitions map
+transitions:
+- [StandStraight, OK, HalfSitting, Strict]
+
+# Initial state
+init: StandStraight
+
+### Pepper specific configurations ###
+speakerDeviceName: Speakers
+tabletDeviceName: Tablet
+bumperSensorNames: [BumperFrontRight, BumperFrontLeft, BumperBack]
+
+# Default Pepper straight posture
+uprightStanding:
+  KneePitch: [0.0]
+  HipPitch: [0.0]
+  HipRoll: [0.0]
+  HeadYaw: [0.0]
+  HeadPitch: [-0.2]
+  LShoulderPitch: [1.57]
+  LShoulderRoll: [0.17]
+  LElbowYaw: [-1.22]
+  LElbowRoll: [-0.52]
+  LWristYaw: [0.0]
+  LHand: [0.5]
+  RShoulderPitch: [1.57]
+  RShoulderRoll: [-0.17]
+  RElbowYaw: [1.22]
+  RElbowRoll: [0.52]
+  RWristYaw: [0.0]
+  RHand: [0.5]
+
+# Mobile base position task
+mobileBaseTask:
+  type: body6d
+  robot: pepper
+  body: Tibia
+  weight: 10000.0
+  stiffness: 3.0
+  dimWeight: [0.0, 0.0, 1.0, 1.0, 1.0, 0.0]
+
+# Mobile base acceleration limits
+maxBaseTransAcc: 0.3
+maxBaseRotAcc: 0.75
+
+# Relative CoM task
+comTask:
+  useCoMTask: true
+  weight: 10000.0
+  stiffness: 3.0
+comPlot: true
+
+# Name of the camera optical frame (in URDF)
+camOpticalFrame: CameraTop_optical_frame
+
+# Model based camera orientation task
+lookAtTask:
+  type: lookAt
+  weight: 10.0
+  stiffness: 3.0
+  body: CameraTop_optical_frame
+  bodyVector: [0.0, 0.0, 1.0]
+  activeJoints:
+    - HeadYaw
+    - HeadPitch
+
+# Image based camera orientation task
+ibvsTask:
+  type: gaze
+  body: CameraTop_optical_frame
+  weight: 1.0
+  stiffness: 3.0
+  activeJoints:
+    - HeadYaw
+    - HeadPitch
