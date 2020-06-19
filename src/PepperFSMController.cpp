@@ -4,6 +4,8 @@
 #include <mc_pepper/devices/TouchSensor.h>
 #include <mc_pepper/devices/Speaker.h>
 #include <mc_rtc/gui/plot.h>
+#include <RBDyn/FK.h>
+#include <RBDyn/FV.h>
 
 // Short names for types
 using Color = mc_rtc::gui::Color;
@@ -54,6 +56,13 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask config entry missing");
   }
 
+  // Camera optical frame name
+  if(config.has("camOpticalFrame")){
+    config("camOpticalFrame", camOpticalFrame_);
+  }else{
+    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | camOpticalFrame config entry missing");
+  }
+
   // Load entire controller configuration file
   config_.load(config);
   mc_rtc::log::success("PepperFSMController init done");
@@ -72,13 +81,21 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   auto inf = std::numeric_limits<double>::infinity();
   robot().tl()[0] = {0, 0, -inf, -inf, -inf, 0};
   robot().tu()[0] = {0, 0, inf, inf, inf, 0};
-
   // Update dynamics constraints
   dynamicsConstraint = mc_solver::DynamicsConstraint(robots(),
                                                      robot().robotIndex(),
                                                      solver().dt(), {0.1, 0.01, 0.5});
   // Must be added to the solver before controller reset
   solver().addConstraintSet(dynamicsConstraint);
+
+  // Add human dynamics constraints
+  if(robots().hasRobot("human")){
+    humanDynamicsConstraint_ = mc_solver::DynamicsConstraint(robots(),
+                                                       robots().robot("human").robotIndex(),
+                                                       solver().dt(), {0.1, 0.01, 0.5});
+    solver().addConstraintSet(humanDynamicsConstraint_);
+  }
+
   mc_control::fsm::Controller::reset(reset_data);
 
   // Mobile base position task
@@ -183,4 +200,46 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
       "base_alpha", [getBaseAlpha]() -> const std::vector<double> & { return getBaseAlpha(); });
   logger().addLogEntry(
       "base_q", [getBaseQ]() -> const std::vector<double> & { return getBaseQ(); });
+
+  // Human model setup
+  if(config_.has("human")){
+    if(config_("human").has("posW")){
+      sva::PTransformd humanPosW = config_("human")("posW");
+      robots().robot("human").posW(humanPosW);
+      robots().robot("chair").posW(humanPosW * sva::PTransformd(Eigen::Vector3d(0.05, 0.0, -0.65)));
+    }
+    if(config_("human").has("posture")){
+      if(config_("human")("posture").has("target")){
+        std::map<std::string, std::vector<double>> humanPostureTarget = config_("human")("posture")("target");
+        getPostureTask("human")->target(humanPostureTarget);
+        // Set human mbc equal to the posture target
+        for(auto const & t : humanPostureTarget){
+          robots().robot("human").mbc().q[robots().robot("human").jointIndexByName(t.first)] = t.second;
+        }
+        rbd::forwardKinematics(robots().robot("human").mb(), robots().robot("human").mbc());
+        rbd::forwardVelocity(robots().robot("human").mb(), robots().robot("human").mbc());
+      }
+    }
+  }
+
+  // Human model log
+  auto getHumanTau = [this]() -> const std::vector<double> &
+  {
+    static std::vector<double> tauOut(robots().robot("human").refJointOrder().size());
+    solver().fillTorque(humanDynamicsConstraint_);
+    auto & mbc = robots().robot("human").mbc();
+    const auto & rjo = robots().robot("human").refJointOrder();
+    int i=0;
+    for(const auto & jn : rjo){
+      for(auto & tauj : mbc.jointTorque[robots().robot("human").jointIndexByName(jn)]){
+        tauOut[i] = tauj;
+      }
+      i++;
+    }
+    return tauOut;
+  };
+
+  logger().addLogEntry(
+    "Human_Torques", [getHumanTau]() -> const std::vector<double> & { return getHumanTau(); });
+
 }

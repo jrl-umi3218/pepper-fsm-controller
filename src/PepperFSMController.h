@@ -3,6 +3,8 @@
 #include <mc_control/fsm/Controller.h>
 #include <mc_tasks/EndEffectorTask.h>
 #include <mc_control/mc_controller.h>
+#include <mc_tasks/LookAtTask.h>
+#include <mc_tasks/GazeTask.h>
 
 #include "constraints/BoundedAccelerationConstr.h"
 #include "tasks/CoMRelativeBodyTask.h"
@@ -19,6 +21,8 @@ struct PepperFSMController_DLLAPI PepperFSMController : public mc_control::fsm::
     std::map<std::string, std::vector<double>> uprightStanding() { return uprightStanding_; }
 
     std::shared_ptr<mc_tasks::EndEffectorTask> mobileBaseTask() {return mobileBaseTask_; }
+
+    std::string camOpticalFrame() { return camOpticalFrame_; }
 
     bool pepperHasSpeakers() {return speakerDeviceName_ != ""; }
     bool pepperHasTablet() {return tabletDeviceName_ != ""; }
@@ -40,7 +44,6 @@ private:
 
     // MobileBase position task
     std::shared_ptr<mc_tasks::EndEffectorTask> mobileBaseTask_;
-
     // Mobile base acceleration constraints
     std::shared_ptr<BoundedAccelerationConstr> baseAccCstr_;
     double maxBaseTransAcc_, maxBaseRotAcc_;
@@ -50,8 +53,14 @@ private:
     std::shared_ptr<CoMRelativeBodyTask> comTask_;
     double comTaskWeight_, comTaskStiffness_;
 
+    // Camera optical frame name
+    std::string camOpticalFrame_;
+
     // Robot device names
     std::string speakerDeviceName_ = "";
     std::string tabletDeviceName_ = "";
     std::vector<std::string> bumperSensorNames_ = {};
+
+    // DynamicsConstraint for human model
+    mc_solver::DynamicsConstraint humanDynamicsConstraint_;
 };
