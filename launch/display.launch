@@ -2,11 +2,13 @@
   <arg name="robot" default="pepper"/>
   <arg name="robotModule" default="PepperExtraHardware"/>
   <arg name="env" default="ground" />
+  <arg name="human" default="human"/>
+  <arg name="chair" default="chair" />
   <arg name="display_surfaces" default="true" />
   <arg name="display_convex" default="true" />
   <arg name="attach_ros_camera" default="false" />
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d mc_pepper_fsm_display.rviz" output="screen"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d mc_pepper_fsm_withHuman_display.rviz" output="screen"/>
 
   <!-- 'Attach' real camera frame to the real robot model camera frame -->
   <group if="$(arg attach_ros_camera)">
@@ -18,12 +20,28 @@
       <arg name="robot" value="$(arg robotModule)" />
       <arg name="tf_prefix" value="control" />
     </include>
+    <include file="$(find mc_surfaces_visualization)/launch/surfaces_publisher.launch" ns="control/env_1">
+      <arg name="robot" value="env/$(arg chair)" />
+      <arg name="tf_prefix" value="control/env_1" />
+    </include>
+    <include file="$(find mc_surfaces_visualization)/launch/surfaces_publisher.launch" ns="control/env_3">
+      <arg name="robot" value="$(arg human)" />
+      <arg name="tf_prefix" value="control/env_3" />
+    </include>
   </group>
 
   <group if="$(arg display_convex)">
     <include file="$(find mc_convex_visualization)/launch/convex_publisher.launch" ns="control">
       <arg name="robot" value="$(arg robotModule)" />
       <arg name="tf_prefix" value="control" />
+    </include>
+    <include file="$(find mc_convex_visualization)/launch/convex_publisher.launch" ns="control/env_1">
+      <arg name="robot" value="env/$(arg chair)" />
+      <arg name="tf_prefix" value="control/env_1" />
+    </include>
+    <include file="$(find mc_convex_visualization)/launch/convex_publisher.launch" ns="control/env_3">
+      <arg name="robot" value="$(arg human)" />
+      <arg name="tf_prefix" value="control/env_3" />
     </include>
   </group>
 
