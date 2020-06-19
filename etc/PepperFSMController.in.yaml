@@ -21,6 +21,10 @@ VerboseStateFactory: false
 robots:
   ground:
     module: env/ground
+  chair:
+    module: env/chair
+  human:
+    module: human
 
 # General constraints, always on
 constraints:
@@ -35,6 +39,58 @@ constraints:
 collisions:
 - type: collision
   useMinimal: true
+- type: collision
+  r1: human
+  r2: human
+  useMinimal: true
+- type: collision
+  r1: pepper
+  r2: human
+  collisions:
+    - body1: torso
+      body2: TorsoLink
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: l_wrist
+      body2: TorsoLink
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: Head
+      body2: TorsoLink
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+- type: collision
+  r1: pepper
+  r2: chair
+  collisions:
+    - body1: Tibia
+      body2: leg_fl
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: Tibia
+      body2: leg_fr
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: Tibia
+      body2: leg_rl
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: Tibia
+      body2: leg_rr
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
+    - body1: l_wrist
+      body2: right_handle
+      iDist: 0.05
+      sDist: 0.01
+      damping: 0
 
 # Initial set of contacts
 contacts:
@@ -43,12 +99,50 @@ contacts:
   r1Surface: MobileBase
   r2Surface: AllGround
   dof: [1.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+- r1: human
+  r2: ground
+  r1Surface: LeftSole
+  r2Surface: AllGround
+- r1: human
+  r2: ground
+  r1Surface: RightSole
+  r2Surface: AllGround
+- r1: human
+  r2: chair
+  r1Surface: RLegBack
+  r2Surface: Top
+- r1: human
+  r2: chair
+  r1Surface: LLegBack
+  r2Surface: Top
 
 # Some options for a specific robot
 pepper:
   posture:
     stiffness: 1
     weight: 10
+
+human:
+  posture:
+     stiffness: 10
+     weight: 100
+     target:
+       LArm_0: [-1.3]
+       LElbow: [0.2]
+       LForearm: [-0.9]
+       RArm_0: [1.3]
+       RElbow: [0.2]
+       RForearm: [0.9]
+       LLeg_1: [-1.57]
+       LShin_0: [1.768]
+       LAnkle_0: [-0.22]
+       RLeg_1: [-1.57]
+       RShin_0: [1.768]
+       RAnkle_0: [-0.22]
+       LHand: [0.3]
+       RHand: [0.3]
+  posW:
+    translation: [1.5, 1.5, 0.65]
 
 # FSM states
 states:
@@ -119,9 +213,32 @@ configs:
   StandStraight:
     postureTaskCompletion: 0.7
 
+  NavigateToHuman:
+    # Image based camera orientation task
+    ibvsTask:
+      type: gaze
+      body: CameraTop_optical_frame
+      weight: 1.0
+      stiffness: 3.0
+      activeJoints:
+        - HeadYaw
+        - HeadPitch
+    # Mobile base PBVS task
+    mobileBasePBVSTask:
+      type: pbvs
+      surface: MobileBase
+      weight: 100.0
+      stiffness: 3.0
+      dimWeight: [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
+    pbvsTaskCompletion: 0.05
+    # Mobile base target wrt human torso frame
+    target_X_humanTorso:
+      rotation: [0.0, 0.0, 1.3]
+      translation: [0.1, -0.4, 0.0]
+
 # Transitions map
 transitions:
-- [StandStraight, OK, HalfSitting, Strict]
+- [StandStraight, OK, NavigateToHuman, Strict]
 
 # Initial state
 init: StandStraight
@@ -170,3 +287,6 @@ comTask:
   weight: 10000.0
   stiffness: 3.0
 comPlot: true
+
+# Name of the camera optical frame (in URDF)
+camOpticalFrame: CameraTop_optical_frame
