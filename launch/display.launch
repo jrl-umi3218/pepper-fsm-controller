@@ -1,0 +1,30 @@
+<launch>
+  <arg name="robot" default="pepper"/>
+  <arg name="robotModule" default="PepperExtraHardware"/>
+  <arg name="env" default="ground" />
+  <arg name="display_surfaces" default="true" />
+  <arg name="display_convex" default="true" />
+  <arg name="attach_ros_camera" default="false" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d mc_pepper_fsm_display.rviz" output="screen"/>
+
+  <!-- 'Attach' real camera frame to the real robot model camera frame -->
+  <group if="$(arg attach_ros_camera)">
+    <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="0 0 0 0 0 0 1 real/CameraTop_optical_frame ros_camera_link_frame 100" />
+  </group>
+
+  <group if="$(arg display_surfaces)">
+    <include file="$(find mc_surfaces_visualization)/launch/surfaces_publisher.launch" ns="control">
+      <arg name="robot" value="$(arg robotModule)" />
+      <arg name="tf_prefix" value="control" />
+    </include>
+  </group>
+
+  <group if="$(arg display_convex)">
+    <include file="$(find mc_convex_visualization)/launch/convex_publisher.launch" ns="control">
+      <arg name="robot" value="$(arg robotModule)" />
+      <arg name="tf_prefix" value="control" />
+    </include>
+  </group>
+
+</launch>
