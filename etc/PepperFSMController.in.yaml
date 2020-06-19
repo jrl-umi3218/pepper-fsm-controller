@@ -170,27 +170,3 @@ comTask:
   weight: 10000.0
   stiffness: 3.0
 comPlot: true
-
-# Name of the camera optical frame (in URDF)
-camOpticalFrame: CameraTop_optical_frame
-
-# Model based camera orientation task
-lookAtTask:
-  type: lookAt
-  weight: 10.0
-  stiffness: 3.0
-  body: CameraTop_optical_frame
-  bodyVector: [0.0, 0.0, 1.0]
-  activeJoints:
-    - HeadYaw
-    - HeadPitch
-
-# Image based camera orientation task
-ibvsTask:
-  type: gaze
-  body: CameraTop_optical_frame
-  weight: 1.0
-  stiffness: 3.0
-  activeJoints:
-    - HeadYaw
-    - HeadPitch
