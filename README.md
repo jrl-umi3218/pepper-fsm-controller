@@ -51,7 +51,7 @@ In `mc_rtc` controller two main elements for robot control are
 * **Tasks** - objectives, what robot should do the best it can
 * **Constraints** - limits, that robot should always respect
 
-Many tasks and constraints are already implemented in `mc_rtc`. For instance `PostureTask`, `CoMTaks`, `EndEffectorTask`, `KinematicsConstraint`, ` ContactConstraint` etc. However, in some cases it might be desirable to design and implement **new custom tasks or constraints** not yet implemented in `mc_rtc`. Such new tasks and constraint might be specific to a robot, use-case or research topic.
+Many tasks and constraints are already implemented in `mc_rtc`. For instance `PostureTask`, `CoMTask`, `EndEffectorTask`, `KinematicsConstraint`, ` ContactConstraint` etc. However, in some cases it might be desirable to design and implement **new custom tasks or constraints** not yet implemented in `mc_rtc`. Such new tasks and constraint might be specific to a robot, use-case or research topic.
 
 In this repository, we provide an example of a custom `CoMRelativeBodyTask`, that allows to specify desired Pepper CoM target relative to the robot mobile base frame (as apposed to world frame in `mc_rtc CoMTask`). Implementation of this custom task can be found in the [`tasks`](tasks) folder.
 
