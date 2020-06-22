@@ -1,5 +1,6 @@
 #include "BoundedAccelerationConstr.h"
 
+#include <mc_solver/ConstraintSetLoader.h>
 
 namespace details
 {
@@ -50,4 +51,16 @@ void BoundedAccelerationConstr::removeFromSolver(tasks::qp::QPSolver & solver)
     solver.updateConstrSize();
     inSolver_ = false;
   }
+}
+
+namespace
+{
+
+/** Show how a constraint can be registered with the ConstraintSetLoader */
+static auto registered = mc_solver::ConstraintSetLoader::register_load_function(
+    "pepper_boundedBaseAcceleration", // unique identifier
+    [](mc_solver::QPSolver & solver, const mc_rtc::Configuration & config) { // loading function
+      return std::make_shared<BoundedAccelerationConstr>(robotIndexFromConfig(config, solver.robots(), "BoundedAccelerationConstr"), config("maxBaseTransAcc"), config("maxBaseRotAcc"));
+    });
+
 }

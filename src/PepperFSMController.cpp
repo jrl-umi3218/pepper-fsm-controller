@@ -19,16 +19,6 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
   }
   config("uprightStanding", uprightStanding_);
 
-  // Load mobile base acceleration limits
-  if(!config.has("maxBaseTransAcc")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | maxBaseTransAcc config entry missing");
-  }
-  config("maxBaseTransAcc", maxBaseTransAcc_);
-  if(!config.has("maxBaseRotAcc")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | maxBaseRotAcc config entry missing");
-  }
-  config("maxBaseRotAcc", maxBaseRotAcc_);
-
   // Load relative CoM task configuration
   if(!config.has("useCoMTask")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | useCoMTask config entry missing");
@@ -82,11 +72,6 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   }else{
     mc_rtc::log::warning("PepperFSMController | mobileBaseTask config entry missing");
   }
-
-  // Limit acceleration of mobile base in 3 directions [rotZ, transX, transY]
-  baseAccCstr_.reset(new BoundedAccelerationConstr(robots().robotIndex(), maxBaseTransAcc_, maxBaseRotAcc_));
-  solver().addConstraint(baseAccCstr_.get());
-  solver().updateConstrSize();
 
   // CoM task
   if(useCoMTask_){
