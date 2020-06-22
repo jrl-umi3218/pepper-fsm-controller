@@ -1,6 +1,8 @@
 #include "BoundedAccelerationConstr.h"
 
 
+namespace details
+{
 
 BoundedAccelerationConstr::BoundedAccelerationConstr(unsigned int rIndex,
                                                      double maxAccTransXY,
@@ -22,3 +24,30 @@ BoundedAccelerationConstr::BoundedAccelerationConstr(unsigned int rIndex,
 
     U_ = -L_.eval();
   }
+
+} // namespace details
+
+BoundedAccelerationConstr::BoundedAccelerationConstr(unsigned int rIndex, double maxAccTransXY, double maxAccRotZ)
+: constr_(rIndex, maxAccTransXY, maxAccRotZ)
+{
+}
+
+void BoundedAccelerationConstr::addToSolver(const std::vector<rbd::MultiBody> & mbs, tasks::qp::QPSolver & solver)
+{
+  if(!inSolver_)
+  {
+    constr_.addToSolver(mbs, solver);
+    solver.updateConstrSize();
+    inSolver_ = true;
+  }
+}
+
+void BoundedAccelerationConstr::removeFromSolver(tasks::qp::QPSolver & solver)
+{
+  if(inSolver_)
+  {
+    solver.removeConstraint(&constr_);
+    solver.updateConstrSize();
+    inSolver_ = false;
+  }
+}

@@ -2,6 +2,9 @@
 
 #include <mc_solver/GenInequalityConstraint.h>
 
+namespace details
+{
+
 struct BoundedAccelerationConstr : public mc_solver::GenInequalityConstraintRobot{
 
   BoundedAccelerationConstr(unsigned int rIndex, double maxAccTransXY, double maxAccRotZ);
@@ -29,3 +32,17 @@ struct BoundedAccelerationConstr : public mc_solver::GenInequalityConstraintRobo
     Eigen::VectorXd L_;
     Eigen::VectorXd U_;
   };
+
+}
+
+struct BoundedAccelerationConstr : public mc_solver::ConstraintSet
+{
+  BoundedAccelerationConstr(unsigned int rIndex, double maxAccTransXY, double maxAccRotZ);
+
+  void addToSolver(const std::vector<rbd::MultiBody> & mbs, tasks::qp::QPSolver & solver) override;
+
+  void removeFromSolver(tasks::qp::QPSolver & solver) override;
+private:
+  details::BoundedAccelerationConstr constr_;
+  bool inSolver_ = false;
+};
