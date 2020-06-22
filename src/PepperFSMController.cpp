@@ -14,23 +14,20 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
 : mc_control::fsm::Controller(rm, dt, config)
 {
   // Load default Pepper straight posture
-  if(config.has("uprightStanding")){
-    config("uprightStanding", uprightStanding_);
-  }else{
+  if(!config.has("uprightStanding")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | uprightStanding config entry missing");
   }
+  config("uprightStanding", uprightStanding_);
 
   // Load mobile base acceleration limits
-  if(config.has("maxBaseTransAcc")){
-    config("maxBaseTransAcc", maxBaseTransAcc_);
-  }else{
+  if(!config.has("maxBaseTransAcc")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | maxBaseTransAcc config entry missing");
   }
-  if(config.has("maxBaseRotAcc")){
-    config("maxBaseRotAcc", maxBaseRotAcc_);
-  }else{
+  config("maxBaseTransAcc", maxBaseTransAcc_);
+  if(!config.has("maxBaseRotAcc")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | maxBaseRotAcc config entry missing");
   }
+  config("maxBaseRotAcc", maxBaseRotAcc_);
 
   // Load relative CoM task configuration
   if(!config.has("useCoMTask")){
