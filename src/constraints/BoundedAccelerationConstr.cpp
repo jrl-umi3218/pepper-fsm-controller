@@ -56,7 +56,7 @@ void BoundedAccelerationConstr::removeFromSolver(tasks::qp::QPSolver & solver)
 namespace
 {
 
-/** Show how a constraint can be registered with the ConstraintSetLoader */
+/** This shows how a constraint can be registered with the ConstraintSetLoader */
 static auto registered = mc_solver::ConstraintSetLoader::register_load_function(
     "pepper_boundedBaseAcceleration", // unique identifier
     [](mc_solver::QPSolver & solver, const mc_rtc::Configuration & config) { // loading function

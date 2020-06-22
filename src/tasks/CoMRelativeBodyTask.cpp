@@ -139,7 +139,7 @@ void CoMRelativeBodyTask::addToGUI(mc_rtc::gui::StateBuilder & gui)
 namespace
 {
 
-/** This show how to register a MetaTask with mc_rtc loader */
+/** This shows how a MetaTask can be registered with the mc_rtc loader */
 static auto registered = mc_tasks::MetaTaskLoader::register_load_function(
   "com_relative_body", // unique type identifier
   [](mc_solver::QPSolver & solver, const mc_rtc::Configuration & config) { // loading function
