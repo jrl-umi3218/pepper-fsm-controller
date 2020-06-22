@@ -10,9 +10,6 @@ void StandStraight::configure(const mc_rtc::Configuration & config)
 
 void StandStraight::start(mc_control::fsm::Controller & ctl_)
 {
-  // Note: in that case the cast is useless because we only access functions
-  // that are already in mc_control::fsm::Controller, it only serves to show
-  // how the controller could be accessed
   auto & ctl = static_cast<PepperFSMController &>(ctl_);
 
   if(config_.has("postureTaskCompletion")){
@@ -21,13 +18,12 @@ void StandStraight::start(mc_control::fsm::Controller & ctl_)
     mc_rtc::log::error_and_throw<std::runtime_error>("StandStraight | postureTaskCompletion config entry missing");
   }
 
-  ctl.getPostureTask("pepper")->target(ctl.uprightStanding());
+  ctl_.getPostureTask("pepper")->target(ctl.uprightStanding());
 }
 
 bool StandStraight::run(mc_control::fsm::Controller & ctl_)
 {
-  auto & ctl = static_cast<PepperFSMController &>(ctl_);
-  if(ctl.getPostureTask("pepper")->eval().norm() < postureTaskCompletion_){
+  if(ctl_.getPostureTask("pepper")->eval().norm() < postureTaskCompletion_){
     output("OK");
     return true;
   }
