@@ -48,7 +48,6 @@ private:
     // Relative CoM task
     bool useCoMTask_;
     std::shared_ptr<CoMRelativeBodyTask> comTask_;
-    double comTaskWeight_, comTaskStiffness_;
 
     // Robot device names
     std::string speakerDeviceName_ = "";

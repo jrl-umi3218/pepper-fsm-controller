@@ -33,25 +33,22 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
   }
 
   // Load relative CoM task configuration
-  if(config.has("comTask")){
-    auto comTaskConf = config("comTask");
-    if(comTaskConf.has("useCoMTask")){
-      config("comTask")("useCoMTask", useCoMTask_);
-    }
-    if(useCoMTask_){
-      if(comTaskConf.has("weight")){
-        config("comTask")("weight", comTaskWeight_);
-      }else{
-        mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask weight config entry missing");
-      }
-      if(comTaskConf.has("stiffness")){
-        config("comTask")("stiffness", comTaskStiffness_);
-      }else{
-        mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask stiffness config entry missing");
-      }
-    }
-  }else{
+  if(!config.has("useCoMTask")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | useCoMTask config entry missing");
+  }
+  if(!config.has("comTask")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask config entry missing");
+  }
+  config("useCoMTask", useCoMTask_);
+  auto comTaskConf = config("comTask");
+  if(!comTaskConf.has("weight")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask weight config entry missing");
+  }
+  if(!comTaskConf.has("stiffness")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask stiffness config entry missing");
+  }
+  if(!comTaskConf.has("type")){
+    comTaskConf.add("type", "com_relative_body");
   }
 
   // Load entire controller configuration file
@@ -96,7 +93,7 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
 
   // CoM task
   if(useCoMTask_){
-    comTask_ = std::make_shared<CoMRelativeBodyTask>("base_link", robots(), robots().robotIndex(), comTaskStiffness_, comTaskWeight_);
+    comTask_ = mc_tasks::MetaTaskLoader::load<CoMRelativeBodyTask>(solver(), config_("comTask"));
     comTask_->dimWeight(Eigen::Vector3d(1.0, 1.0, 0.0));
     comTask_->target(Eigen::Vector3d(0.0, 0.0, robot().com().z()));
     solver().addTask(comTask_);

@@ -165,8 +165,9 @@ maxBaseTransAcc: 0.3
 maxBaseRotAcc: 0.75
 
 # Relative CoM task
+useCoMTask: true
 comTask:
-  useCoMTask: true
+  body: base_link
   weight: 10000.0
   stiffness: 3.0
 comPlot: true
