@@ -10,6 +10,9 @@ void StandStraight::configure(const mc_rtc::Configuration & config)
 
 void StandStraight::start(mc_control::fsm::Controller & ctl_)
 {
+  // Note: in that case the cast is useless because we only access functions
+  // that are already in mc_control::fsm::Controller, it only serves to show
+  // how the controller could be accessed
   auto & ctl = static_cast<PepperFSMController &>(ctl_);
 
   if(config_.has("postureTaskCompletion")){
@@ -31,9 +34,8 @@ bool StandStraight::run(mc_control::fsm::Controller & ctl_)
   return false;
 }
 
-void StandStraight::teardown(mc_control::fsm::Controller & ctl_)
+void StandStraight::teardown(mc_control::fsm::Controller &)
 {
-  auto & ctl = static_cast<PepperFSMController &>(ctl_);
 }
 
 EXPORT_SINGLE_STATE("StandStraight", StandStraight)

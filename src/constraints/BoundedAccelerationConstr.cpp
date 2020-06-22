@@ -22,6 +22,3 @@ BoundedAccelerationConstr::BoundedAccelerationConstr(unsigned int rIndex,
 
     U_ = -L_.eval();
   }
-
-
-  void BoundedAccelerationConstr::compute() { }

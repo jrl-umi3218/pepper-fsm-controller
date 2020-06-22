@@ -16,7 +16,7 @@ struct BoundedAccelerationConstr : public mc_solver::GenInequalityConstraintRobo
 
   inline const Eigen::MatrixXd & A() const override { return A_; }
 
-  void compute() override;
+  inline void compute() override {}
 
   private:
     // Max translation_XY acceleration
