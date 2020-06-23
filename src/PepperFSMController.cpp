@@ -86,7 +86,7 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | mobileBaseTask config entry missing");
   }
   mobileBaseTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::EndEffectorTask>(solver(), config_("mobileBaseTask"));
-  solver().addTask(mobileBaseTask_)
+  solver().addTask(mobileBaseTask_);
 
   // CoM task
   if(useCoMTask_){
