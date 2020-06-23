@@ -9,7 +9,7 @@ On this branch of a sample Pepper FSM `mc_rtc` controller we add two new objects
 * Human model from [`mc_human`](https://gite.lirmm.fr/multi-contact/mc_human)
 * Chair model from [`mc_rtc_data`](https://github.com/jrl-umi3218/mc_rtc_data)
 
-This is an example of multi-robot `mc_rtc` controller
+This is an example of a multi-robot `mc_rtc` controller
 
 You can see sample **`NavigateToHuman`** FSM state for basic multi-robot interaction example
 
