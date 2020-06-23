@@ -1,5 +1,7 @@
 #include "CoMRelativeBodyTask.h"
+
 #include <mc_rtc/gui/Point3D.h>
+#include <mc_tasks/MetaTaskLoader.h>
 
 namespace details
 {
@@ -108,6 +110,7 @@ void CoMRelativeBodyTask::reset()
 
 void CoMRelativeBodyTask::addToLogger(mc_rtc::Logger & logger)
 {
+  Base::addToLogger(logger);
   logger.addLogEntry(name_ + "_eval", [this]() -> const Eigen::VectorXd & { return errorT->eval(); });
   logger.addLogEntry(name_ + "_body_pos", [this]() -> const Eigen::Vector3d & { return errorT->robot().mbc().bodyPosW[errorT->bIndex()].translation(); });
   logger.addLogEntry(name_ + "_com", [this]() { return errorT->robot().com(); });
@@ -116,6 +119,7 @@ void CoMRelativeBodyTask::addToLogger(mc_rtc::Logger & logger)
 
 void CoMRelativeBodyTask::removeFromLogger(mc_rtc::Logger & logger)
 {
+  Base::removeFromLogger(logger);
   logger.removeLogEntry(name_ + "_eval");
   logger.removeLogEntry(name_ + "_body_pos");
   logger.removeLogEntry(name_ + "_com");
@@ -124,10 +128,25 @@ void CoMRelativeBodyTask::removeFromLogger(mc_rtc::Logger & logger)
 
 void CoMRelativeBodyTask::addToGUI(mc_rtc::gui::StateBuilder & gui)
 {
-  TrajectoryTaskGeneric<details::CoMRelativeBodyTask>::addToGUI(gui);
+  Base::addToGUI(gui);
   gui.addElement({"Tasks", name_}, mc_rtc::gui::ArrayInput("relPos", [this]() { return errorT->target(); },
                                       [this](const Eigen::VectorXd & pos) { errorT->target(pos); }),
                                    mc_rtc::gui::Point3D("com", [this]() { return errorT->robot().com(); }),
                                    mc_rtc::gui::Point3D("target", mc_rtc::gui::PointConfig({0., 1., 0.}, 0.03),
                                       [this]() { return Eigen::Vector3d(errorT->target() + errorT->robot().mbc().bodyPosW[errorT->bIndex()].translation() ); }));
+}
+
+namespace
+{
+
+/** This shows how a MetaTask can be registered with the mc_rtc loader */
+static auto registered = mc_tasks::MetaTaskLoader::register_load_function(
+  "com_relative_body", // unique type identifier
+  [](mc_solver::QPSolver & solver, const mc_rtc::Configuration & config) { // loading function
+    auto robotIndex = robotIndexFromConfig(config, solver.robots(), "CoMRelativeBodyTask");
+    auto t = std::make_shared<CoMRelativeBodyTask>(config("body"), solver.robots(), robotIndex, config("stiffness"), config("weight"));
+    t->load(solver, config);
+    return t;
+  });
+
 }

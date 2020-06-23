@@ -73,6 +73,9 @@ private:
  * generic TrajectoryTask wrapper */
 struct CoMRelativeBodyTask : public mc_tasks::TrajectoryTaskGeneric<details::CoMRelativeBodyTask>
 {
+  // Shortcut name for the base class
+  using Base = mc_tasks::TrajectoryTaskGeneric<details::CoMRelativeBodyTask>;
+
   CoMRelativeBodyTask(const std::string & body, const mc_rbdyn::Robots & robots, unsigned int robotIndex, double stiffness, double weight);
 
   virtual ~CoMRelativeBodyTask() {}

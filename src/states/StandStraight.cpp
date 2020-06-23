@@ -18,22 +18,20 @@ void StandStraight::start(mc_control::fsm::Controller & ctl_)
     mc_rtc::log::error_and_throw<std::runtime_error>("StandStraight | postureTaskCompletion config entry missing");
   }
 
-  ctl.getPostureTask("pepper")->target(ctl.uprightStanding());
+  ctl_.getPostureTask("pepper")->target(ctl.uprightStanding());
 }
 
 bool StandStraight::run(mc_control::fsm::Controller & ctl_)
 {
-  auto & ctl = static_cast<PepperFSMController &>(ctl_);
-  if(ctl.getPostureTask("pepper")->eval().norm() < postureTaskCompletion_){
+  if(ctl_.getPostureTask("pepper")->eval().norm() < postureTaskCompletion_){
     output("OK");
     return true;
   }
   return false;
 }
 
-void StandStraight::teardown(mc_control::fsm::Controller & ctl_)
+void StandStraight::teardown(mc_control::fsm::Controller &)
 {
-  auto & ctl = static_cast<PepperFSMController &>(ctl_);
 }
 
 EXPORT_SINGLE_STATE("StandStraight", StandStraight)

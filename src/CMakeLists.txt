@@ -20,11 +20,6 @@ install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin)
 
 add_controller(${PROJECT_NAME}_controller lib.cpp "")
-set_target_properties(${PROJECT_NAME}_controller PROPERTIES OUTPUT_NAME "${PROJECT_NAME}")
-set_target_properties(${PROJECT_NAME}_controller PROPERTIES
-  ARCHIVE_OUTPUT_DIRECTORY lib/$<CONFIGURATION>
-  LIBRARY_OUTPUT_DIRECTORY lib/$<CONFIGURATION>
-  RUNTIME_OUTPUT_DIRECTORY lib/$<CONFIGURATION>)
 target_link_libraries(${PROJECT_NAME}_controller PUBLIC ${PROJECT_NAME})
 
 add_subdirectory(states)
