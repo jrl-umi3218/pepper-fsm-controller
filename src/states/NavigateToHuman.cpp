@@ -21,21 +21,19 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
   }
 
   // PBVS task completion threshold
-  if(config_.has("pbvsTaskCompletion")){
-    config_("pbvsTaskCompletion", pbvsTaskCompletion_);
-  }else{
+  if(!config_.has("pbvsTaskCompletion")){
     mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | pbvsTaskCompletion config entry missing");
   }
+  config_("pbvsTaskCompletion", pbvsTaskCompletion_);
 
   // Get desired mobile base target defined wrt human torso frame
-  if(config_.has("target_X_humanTorso")){
-    target_X_humanTorso = config_("target_X_humanTorso");
-    sva::PTransformd humanPosW = ctl.robots().robot("human").posW();
-    // Set target to be on the groud for convenience
-    target_X_humanTorso = target_X_humanTorso * sva::PTransformd(Eigen::Vector3d(0.0, 0.0, -humanPosW.translation()[2]));
-  }else{
-    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | target_X_humanTorso config entry missing");
+  if(!config_.has("target_X_humanTorso")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | target_X_humanTorso config entry missing"); 
   }
+  target_X_humanTorso = config_("target_X_humanTorso");
+  sva::PTransformd humanPosW = ctl.robots().robot("human").posW();
+  // Set target to be on the groud for convenience
+  target_X_humanTorso = target_X_humanTorso * sva::PTransformd(Eigen::Vector3d(0.0, 0.0, -humanPosW.translation()[2]));
 
   // Compute humanTorso and humanHead to camera transformations
   camera_X_world = ctl.robot().bodyPosW(ctl.camOpticalFrame());
@@ -51,31 +49,29 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
   mobileBase_X_camera = ctl.robot().X_b1_b2(ctl.camOpticalFrame(), "base_link");
 
   // Add IBVS task to solver to controll camera orientation
-  if(config_.has("ibvsTask")){
-    // Unselect neck joints for the posture task
-    ctl.getPostureTask("pepper")->reset();
-    ctl.getPostureTask("pepper")->selectUnactiveJoints(ctl.solver(), {"HeadYaw", "HeadPitch"});
-    // Load IBVS task from config
-    ibvsTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::GazeTask>(ctl.solver(), config_("ibvsTask"));
-    // Minimize the error
-    ibvsTask_->error(humanHead_X_camera.translation());
-    ctl.solver().addTask(ibvsTask_);
-  }else{
-    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | ibvsTask config entry missing");
+  if(!config_.has("ibvsTask")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | ibvsTask config entry missing"); 
   }
+  // Unselect neck joints for the posture task
+  ctl.getPostureTask("pepper")->reset();
+  ctl.getPostureTask("pepper")->selectUnactiveJoints(ctl.solver(), {"HeadYaw", "HeadPitch"});
+  // Load IBVS task from config
+  ibvsTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::GazeTask>(ctl.solver(), config_("ibvsTask"));
+  // Minimize the error
+  ibvsTask_->error(humanHead_X_camera.translation());
+  ctl.solver().addTask(ibvsTask_);
 
   // Add PBVS task to solver to controll mobile base
-  if(config_.has("mobileBasePBVSTask")){
-    // Load PBVS task from config
-    mobileBasePBVSTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::PositionBasedVisServoTask>(ctl.solver(), config_("mobileBasePBVSTask"));
-    // Minimize the error
-    mobileBasePBVSTask_->error(mobileBase_X_camera * target_X_camera.inv());
-    ctl.solver().addTask(mobileBasePBVSTask_);
-    // Remove default free floating base position task from solver in this state
-    ctl.solver().removeTask(ctl.mobileBaseTask());
-  }else{
+  if(!config_.has("mobileBasePBVSTask")){
     mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | mobileBasePBVSTask config entry missing");
   }
+  // Load PBVS task from config
+  mobileBasePBVSTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::PositionBasedVisServoTask>(ctl.solver(), config_("mobileBasePBVSTask"));
+  // Minimize the error
+  mobileBasePBVSTask_->error(mobileBase_X_camera * target_X_camera.inv());
+  ctl.solver().addTask(mobileBasePBVSTask_);
+  // Remove default free floating base position task from solver in this state
+  ctl.solver().removeTask(ctl.mobileBaseTask());
 
   // Add visual element to the scene
   ctl.gui()->addElement({"NavigateToHuman", "Frames"},
