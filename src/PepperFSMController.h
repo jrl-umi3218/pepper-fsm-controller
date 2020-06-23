@@ -3,8 +3,6 @@
 #include <mc_control/fsm/Controller.h>
 #include <mc_tasks/EndEffectorTask.h>
 #include <mc_control/mc_controller.h>
-#include <mc_tasks/LookAtTask.h>
-#include <mc_tasks/GazeTask.h>
 
 #include "constraints/BoundedAccelerationConstr.h"
 #include "tasks/CoMRelativeBodyTask.h"
