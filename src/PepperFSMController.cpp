@@ -83,12 +83,11 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   mc_control::fsm::Controller::reset(reset_data);
 
   // Mobile base position task
-  if(config_.has("mobileBaseTask")){
-    mobileBaseTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::EndEffectorTask>(solver(), config_("mobileBaseTask"));
-    solver().addTask(mobileBaseTask_);
-  }else{
-    mc_rtc::log::warning("PepperFSMController | mobileBaseTask config entry missing");
+  if(!config_.has("mobileBaseTask")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | mobileBaseTask config entry missing");
   }
+  mobileBaseTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::EndEffectorTask>(solver(), config_("mobileBaseTask"));
+  solver().addTask(mobileBaseTask_)
 
   // CoM task
   if(useCoMTask_){
