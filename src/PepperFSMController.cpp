@@ -41,11 +41,10 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
   }
 
   // Camera optical frame name
-  if(config.has("camOpticalFrame")){
-    config("camOpticalFrame", camOpticalFrame_);
-  }else{
+  if(!config.has("camOpticalFrame")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | camOpticalFrame config entry missing");
   }
+  config("camOpticalFrame", camOpticalFrame_);
 
   // Load entire controller configuration file
   config_.load(config);
