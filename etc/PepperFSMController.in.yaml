@@ -34,6 +34,11 @@ constraints:
     - body: base_link
       lowerSpeed: [0.0, 0.0, -0.5, -0.1, -0.1, 0.0]
       upperSpeed: [0.0, 0.0, 0.5, 0.1, 0.1, 0.0]
+- type: pepper_boundedBaseAcceleration
+  # Mobile base acceleration limits
+  maxBaseTransAcc: 0.3
+  maxBaseRotAcc: 0.75
+
 
 # Collision constraint
 collisions:
@@ -277,13 +282,10 @@ mobileBaseTask:
   stiffness: 3.0
   dimWeight: [0.0, 0.0, 1.0, 1.0, 1.0, 0.0]
 
-# Mobile base acceleration limits
-maxBaseTransAcc: 0.3
-maxBaseRotAcc: 0.75
-
 # Relative CoM task
+useCoMTask: true
 comTask:
-  useCoMTask: true
+  body: base_link
   weight: 10000.0
   stiffness: 3.0
 comPlot: true

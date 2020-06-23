@@ -101,7 +101,7 @@ Make sure to setup correctly following interface configuration entries:
 # What robot is being controlled
 MainRobot: Pepper
 # Enabled controllers
-Enabled: [PepperFSMController]
+Enabled: PepperFSMController
 ```
 ## Visualizing the controller in [`RViz`](https://wiki.ros.org/rviz)
 

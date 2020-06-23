@@ -44,14 +44,10 @@ private:
 
     // MobileBase position task
     std::shared_ptr<mc_tasks::EndEffectorTask> mobileBaseTask_;
-    // Mobile base acceleration constraints
-    std::shared_ptr<BoundedAccelerationConstr> baseAccCstr_;
-    double maxBaseTransAcc_, maxBaseRotAcc_;
 
     // Relative CoM task
     bool useCoMTask_;
     std::shared_ptr<CoMRelativeBodyTask> comTask_;
-    double comTaskWeight_, comTaskStiffness_;
 
     // Camera optical frame name
     std::string camOpticalFrame_;
