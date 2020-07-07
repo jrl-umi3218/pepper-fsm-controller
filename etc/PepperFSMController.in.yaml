@@ -25,6 +25,8 @@ robots:
     module: env/chair
   human:
     module: human
+    init_pos: 
+      translation: [1.5, 1.5, 0.65]
 
 # General constraints, always on
 constraints:
@@ -146,8 +148,6 @@ human:
        RAnkle_0: [-0.22]
        LHand: [0.3]
        RHand: [0.3]
-  posW:
-    translation: [1.5, 1.5, 0.65]
 
 # FSM states
 states:
