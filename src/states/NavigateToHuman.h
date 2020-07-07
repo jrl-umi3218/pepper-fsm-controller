@@ -1,9 +1,9 @@
 #pragma once
 
-#include <mc_control/fsm/State.h>
 #include <mc_tasks/PositionBasedVisServoTask.h>
+#include <mc_control/CompletionCriteria.h>
+#include <mc_control/fsm/State.h>
 #include <mc_tasks/GazeTask.h>
-
 
 struct NavigateToHuman : mc_control::fsm::State
 {
@@ -27,8 +27,7 @@ struct NavigateToHuman : mc_control::fsm::State
 
     // PBVS task for mobile base navigation
     std::shared_ptr<mc_tasks::PositionBasedVisServoTask> mobileBasePBVSTask_;
-    // Task completion threshold
-    double pbvsTaskCompletion_;
+    mc_control::CompletionCriteria pbvsTaskCriteria_;
 
     // Desired mobilebase taget position w.r.t to the human torso frame
     sva::PTransformd target_X_humanTorso = sva::PTransformd::Identity();

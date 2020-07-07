@@ -235,7 +235,8 @@ configs:
       weight: 100.0
       stiffness: 3.0
       dimWeight: [1.0, 1.0, 1.0, 1.0, 1.0, 0.0]
-    pbvsTaskCompletion: 0.05
+      completion:
+        eval: 0.05
     # Mobile base target wrt human torso frame
     target_X_humanTorso:
       rotation: [0.0, 0.0, 1.3]

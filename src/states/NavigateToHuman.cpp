@@ -20,12 +20,6 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
     mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman | state requires human model in solver");
   }
 
-  // PBVS task completion threshold
-  if(!config_.has("pbvsTaskCompletion")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | pbvsTaskCompletion config entry missing");
-  }
-  config_("pbvsTaskCompletion", pbvsTaskCompletion_);
-
   // Get desired mobile base target defined wrt human torso frame
   if(!config_.has("target_X_humanTorso")){
     mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | target_X_humanTorso config entry missing"); 
@@ -67,6 +61,10 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
   }
   // Load PBVS task from config
   mobileBasePBVSTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::PositionBasedVisServoTask>(ctl_.solver(), config_("mobileBasePBVSTask"));
+  if(!config_("mobileBasePBVSTask").has("completion")){
+    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | completion config entry missing for mobileBasePBVSTask");
+  }
+  pbvsTaskCriteria_.configure(*mobileBasePBVSTask_, ctl_.solver().dt(), config_("mobileBasePBVSTask")("completion"));
   // Minimize the error
   mobileBasePBVSTask_->error(mobileBase_X_camera * target_X_camera.inv());
   ctl_.solver().addTask(mobileBasePBVSTask_);
@@ -121,7 +119,7 @@ bool NavigateToHuman::run(mc_control::fsm::Controller & ctl_)
   ibvsTask_->error(humanHead_X_camera.translation());
 
   // State termination criteria
-  if(mobileBasePBVSTask_->eval().norm() < pbvsTaskCompletion_){
+  if(pbvsTaskCriteria_.completed(*mobileBasePBVSTask_)){
     output("OK");
     return true;
   }
