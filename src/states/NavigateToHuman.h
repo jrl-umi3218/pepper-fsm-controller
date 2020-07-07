@@ -22,6 +22,9 @@ struct NavigateToHuman : mc_control::fsm::State
     // Time for plot
     double t_ = 0.0;
 
+    // Indicate if state run function is called for the first time
+    bool firstStateRun_ = true;
+
     // IBVS task for camera orientation control
     std::shared_ptr<mc_tasks::GazeTask> ibvsTask_;
 
