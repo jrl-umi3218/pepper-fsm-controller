@@ -166,8 +166,8 @@ mobileBaseTask:
   dimWeight: [0.0, 0.0, 1.0, 1.0, 1.0, 0.0]
 
 # Relative CoM task
-useCoMTask: true
 comTask:
+  type: com_relative_body
   body: base_link
   weight: 10000.0
   stiffness: 3.0
