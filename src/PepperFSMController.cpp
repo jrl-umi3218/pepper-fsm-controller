@@ -19,25 +19,6 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
   }
   config("uprightStanding", uprightStanding_);
 
-  // Load relative CoM task configuration
-  if(!config.has("useCoMTask")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | useCoMTask config entry missing");
-  }
-  if(!config.has("comTask")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask config entry missing");
-  }
-  config("useCoMTask", useCoMTask_);
-  auto comTaskConf = config("comTask");
-  if(!comTaskConf.has("weight")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask weight config entry missing");
-  }
-  if(!comTaskConf.has("stiffness")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | comTask stiffness config entry missing");
-  }
-  if(!comTaskConf.has("type")){
-    comTaskConf.add("type", "com_relative_body");
-  }
-
   // Camera optical frame name
   if(!config.has("camOpticalFrame")){
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | camOpticalFrame config entry missing");
@@ -101,9 +82,9 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   mobileBaseTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::EndEffectorTask>(solver(), config_("mobileBaseTask"));
   solver().addTask(mobileBaseTask_);
 
-  // CoM task
-  if(useCoMTask_){
-    comTask_ = mc_tasks::MetaTaskLoader::load<CoMRelativeBodyTask>(solver(), config_("comTask"));
+  // Load relative CoM task
+  if(config_.has("comTask")){
+    comTask_ = mc_tasks::MetaTaskLoader::load<mc_pepper::CoMRelativeBodyTask>(solver(), config_("comTask"));
     comTask_->dimWeight(Eigen::Vector3d(1.0, 1.0, 0.0));
     comTask_->target(Eigen::Vector3d(0.0, 0.0, robot().com().z()));
     solver().addTask(comTask_);

@@ -1,11 +1,9 @@
 #pragma once
 
+#include <mc_pepper/tasks/CoMRelativeBodyTask.h>
 #include <mc_control/fsm/Controller.h>
-#include <mc_tasks/EndEffectorTask.h>
 #include <mc_control/mc_controller.h>
-
-#include "constraints/BoundedAccelerationConstr.h"
-#include "tasks/CoMRelativeBodyTask.h"
+#include <mc_tasks/EndEffectorTask.h>
 #include "api.h"
 
 struct PepperFSMController_DLLAPI PepperFSMController : public mc_control::fsm::Controller
@@ -19,6 +17,8 @@ struct PepperFSMController_DLLAPI PepperFSMController : public mc_control::fsm::
     std::map<std::string, std::vector<double>> uprightStanding() { return uprightStanding_; }
 
     std::shared_ptr<mc_tasks::EndEffectorTask> mobileBaseTask() {return mobileBaseTask_; }
+
+    std::shared_ptr<mc_pepper::CoMRelativeBodyTask> comTask() {return comTask_; }
 
     std::string camOpticalFrame() { return camOpticalFrame_; }
 
@@ -44,8 +44,7 @@ private:
     std::shared_ptr<mc_tasks::EndEffectorTask> mobileBaseTask_;
 
     // Relative CoM task
-    bool useCoMTask_;
-    std::shared_ptr<CoMRelativeBodyTask> comTask_;
+    std::shared_ptr<mc_pepper::CoMRelativeBodyTask> comTask_;
 
     // Camera optical frame name
     std::string camOpticalFrame_;

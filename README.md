@@ -63,19 +63,6 @@ Besides the default `mc_rtc` FSM states (such as `HalfSitting`, `Pause_1s`, `Pau
 * **Wait** - pause for 10s
 * **NavigateToHuman** - Pepper navigating to human model
 
-## Example of custom tasks and constraints
-
-In `mc_rtc` controller two main elements for robot control are
-* **Tasks** - objectives, what robot should do the best it can
-* **Constraints** - limits, that robot should always respect
-
-Many tasks and constraints are already implemented in `mc_rtc`. For instance `PostureTask`, `CoMTask`, `EndEffectorTask`, `KinematicsConstraint`, ` ContactConstraint` etc. However, in some cases it might be desirable to design and implement **new custom tasks or constraints** not yet implemented in `mc_rtc`. Such new tasks and constraint might be specific to a robot, use-case or research topic.
-
-In this repository, we provide an example of a custom `CoMRelativeBodyTask`, that allows to specify desired Pepper CoM target relative to the robot mobile base frame (as apposed to world frame in `mc_rtc CoMTask`). Implementation of this custom task can be found in the [`tasks`](tasks) folder.
-
-An implementation of a custom `BoundedAccelerationConstr` constraint, to impose acceleration bounds for Pepper mobile base, can be found in the [`constraints`](constraints) folder.
-
-**In the similar way, many other novel tasks and constraints can be implemented and tested.**
 
 ## Building and installing the controller
 
