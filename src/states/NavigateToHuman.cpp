@@ -1,5 +1,7 @@
 #include "NavigateToHuman.h"
 #include "../PepperFSMController.h"
+
+#include <mc_pepper/devices/TouchSensor.h>
 #include <mc_tasks/MetaTaskLoader.h>
 
 // Short names for types
@@ -22,7 +24,7 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
 
   // Get desired mobile base target defined wrt human torso frame
   if(!config_.has("target_X_humanTorso")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | target_X_humanTorso config entry missing"); 
+    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | target_X_humanTorso config entry missing");
   }
   target_X_humanTorso = config_("target_X_humanTorso");
   sva::PTransformd humanPosW = ctl_.robots().robot("human").posW();
@@ -31,7 +33,7 @@ void NavigateToHuman::start(mc_control::fsm::Controller & ctl_)
 
   // Add IBVS task to solver to controll camera orientation
   if(!config_.has("ibvsTask")){
-    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | ibvsTask config entry missing"); 
+    mc_rtc::log::error_and_throw<std::runtime_error>("NavigateToHuman start | ibvsTask config entry missing");
   }
   // Unselect neck joints for the posture task
   ctl_.getPostureTask("pepper")->reset();
@@ -79,8 +81,23 @@ bool NavigateToHuman::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PepperFSMController &>(ctl_);
 
+  // Check if mobile base is stuck
+  if(ctl.pepperHasBumpers()){
+    for(const auto bn : ctl.bumperSensorNames()){
+      auto & bumper = ctl_.robot().device<mc_pepper::TouchSensor>(bn);
+      if(bumper.touch()){
+        mobileBaseStuck_ = true;
+      }
+    }
+  }
+
   // State termination criteria
-  if(pbvsTaskCriteria_.completed(*mobileBasePBVSTask_) && !firstStateRun_){
+  if(mobileBaseStuck_){
+    mc_rtc::log::warning("NavigateToHuman run | mobile base is stuck");
+    output("STUCK");
+    return true;
+  }
+  else if(pbvsTaskCriteria_.completed(*mobileBasePBVSTask_) && !firstStateRun_){
     output("OK");
     return true;
   }

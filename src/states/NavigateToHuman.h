@@ -19,6 +19,9 @@ struct NavigateToHuman : mc_control::fsm::State
     // Full state configuration
     mc_rtc::Configuration config_;
 
+    // Monitor if contact with mobile base is detected through bumpers
+    bool mobileBaseStuck_ = false;
+
     // Time for plot
     double t_ = 0.0;
 

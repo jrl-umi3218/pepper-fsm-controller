@@ -25,7 +25,7 @@ robots:
     module: env/chair
   human:
     module: human
-    init_pos: 
+    init_pos:
       translation: [1.5, 1.5, 0.65]
 
 # General constraints, always on
@@ -40,7 +40,6 @@ constraints:
   # Mobile base acceleration limits
   maxBaseTransAcc: 0.3
   maxBaseRotAcc: 0.75
-
 
 # Collision constraint
 collisions:
@@ -213,6 +212,10 @@ states:
       - HandTaskStateLeft
       - HandTaskStateRight
 
+  MobileBaseStuck:
+    base: MetaTasks
+    # TODO implement suitable recovery state
+
 ### Configurations of states defined in c++ ###
 configs:
   StandStraight:
@@ -245,6 +248,7 @@ configs:
 # Transitions map
 transitions:
 - [StandStraight, OK, NavigateToHuman, Strict]
+- [NavigateToHuman, STUCK, MobileBaseStuck, Auto]
 
 # Initial state
 init: StandStraight
