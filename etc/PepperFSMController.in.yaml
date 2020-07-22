@@ -256,7 +256,7 @@ init: StandStraight
 ### Pepper specific configurations ###
 speakerDeviceName: Speakers
 tabletDeviceName: Tablet
-bumperSensorNames: [BumperFrontRight, BumperFrontLeft, BumperBack]
+bumperSensorNames: [FrontRight, FrontLeft, Back]
 
 # Default Pepper straight posture
 uprightStanding:
