@@ -6,7 +6,7 @@
 
 On this branch of a sample Pepper FSM `mc_rtc` controller we add two new objects to our controller
 
-* Human model from [`mc_human`](https://gite.lirmm.fr/multi-contact/mc_human)
+* Human model from [`mc_human`](https://github.com/jrl-umi3218/mc_human)
 * Chair model from [`mc_rtc_data`](https://github.com/jrl-umi3218/mc_rtc_data)
 
 This is an example of a multi-robot `mc_rtc` controller
@@ -26,18 +26,18 @@ This way users writing `mc_rtc` controller for Pepper do not need to add these e
 If you need to create a new `mc_rtc` controller that uses Peppper as a `MainRobot`, it is highly recommended to use this repository as a starting point for your project. You can either fork this repository or duplicate it by making a bare clone then pushing it to your repository:
 
 ```bash
-git clone --bare https://gite.lirmm.fr/mc-controllers/pepperfsmcontroller PepperFSMController
+git clone --bare https://github.com/jrl-umi3218/pepper-fsm-controller PepperFSMController
 cd PepperFSMController.git
-git push --mirror https://gite.lirmm.fr/your_account/your_repository.git
+git push --mirror https://github.com/your_account/your_repository.git
 cd ..
-$ rm -rf PepperFSMController.git
+rm -rf PepperFSMController.git
 ```
 
 ## Required packages
 
 * [`mc_rtc`](https://jrl-umi3218.github.io/mc_rtc/tutorials/introduction/installation-guide.html)
-* [`mc_pepper`](https://gite.lirmm.fr/multi-contact/mc_pepper)
-* [`mc_human`](https://gite.lirmm.fr/multi-contact/mc_human)
+* [`mc_pepper`](https://github.com/jrl-umi3218/mc_pepper)
+* [`mc_human`](https://github.com/jrl-umi3218/mc_human)
 
 
 ## List of Pepper specific controller elements:
@@ -80,7 +80,7 @@ sudo make install # install controller once successfully compiled
 Use your preferred interface to run this controller. Some option are:
 
 * [`mc_rtc_ticker`](https://github.com/jrl-umi3218/mc_rtc_ros/tree/master/mc_rtc_ticker) from [`mc_rtc_ros`](https://github.com/jrl-umi3218/mc_rtc_ros)
-* [`mc_naoqi`](https://gite.lirmm.fr/multi-contact/mc_naoqi)
+* [`mc_naoqi`](https://github.com/jrl-umi3218/mc_naoqi)
 
 Make sure to setup correctly following interface configuration entries:
 
