@@ -21,7 +21,7 @@ $ rm -rf PepperFSMController.git
 ## Required packages
 
 * [`mc_rtc`](https://jrl-umi3218.github.io/mc_rtc/tutorials/introduction/installation-guide.html)
-* [`mc_pepper`](https://github.comgithub.com/jrl-umi3218/mc_pepper)
+* [`mc_pepper`](https://github.com/jrl-umi3218/mc_pepper)
 
 
 ## List of Pepper specific controller elements:
@@ -62,7 +62,7 @@ sudo make install # install controller once successfully compiled
 Use your preferred interface to run this controller. Some option are:
 
 * [`mc_rtc_ticker`](https://github.com/jrl-umi3218/mc_rtc_ros/tree/master/mc_rtc_ticker) from [`mc_rtc_ros`](https://github.com/jrl-umi3218/mc_rtc_ros)
-* [`mc_naoqi`](https://github.comgithub.com/jrl-umi3218/mc_naoqi)
+* [`mc_naoqi`](https://github.com/jrl-umi3218/mc_naoqi)
 
 Make sure to setup correctly following interface configuration entries:
 
