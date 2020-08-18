@@ -102,4 +102,10 @@ Once `RViz` node is started, configure it by clicking in `RViz` `File -> Open Co
 
 Optionally, you can configure `RViz` to use [`mc_pepper_fsm_withHuman_display.rviz`](launch/mc_pepper_fsm_withHuman_display.rviz) configuration automatically when running `roslaunch launch/display.launch` by adding it to your ROS path:
 
-```cp launch/mc_pepper_fsm_withHuman_display.rviz ~/.ros/```
+```
+cp launch/mc_pepper_fsm_withHuman_display.rviz ~/.ros/
+```
+
+# Acknowledgment
+
+Thanks to [@gergondet](https://github.com/gergondet) and [@arntanguy](https://github.com/arntanguy) for reviewing and helping with this controller and the [`mc_rtc`](https://jrl-umi3218.github.io/mc_rtc/) framework
