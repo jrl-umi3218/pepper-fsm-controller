@@ -1,9 +1,9 @@
 #include "PepperFSMController.h"
-#include <mc_tasks/MetaTaskLoader.h>
-#include <mc_pepper/devices/VisualDisplay.h>
-#include <mc_pepper/devices/TouchSensor.h>
 #include <mc_pepper/devices/Speaker.h>
+#include <mc_pepper/devices/TouchSensor.h>
+#include <mc_pepper/devices/VisualDisplay.h>
 #include <mc_rtc/gui/plot.h>
+#include <mc_tasks/MetaTaskLoader.h>
 
 // Short names for types
 using Color = mc_rtc::gui::Color;
@@ -14,7 +14,8 @@ PepperFSMController::PepperFSMController(mc_rbdyn::RobotModulePtr rm, double dt,
 : mc_control::fsm::Controller(rm, dt, config)
 {
   // Load default Pepper straight posture
-  if(!config.has("uprightStanding")){
+  if(!config.has("uprightStanding"))
+  {
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | uprightStanding config entry missing");
   }
   config("uprightStanding", uprightStanding_);
@@ -39,63 +40,85 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   robot().tu()[0] = {0, 0, inf, inf, inf, 0};
 
   // Update dynamics constraints
-  dynamicsConstraint.reset(new mc_solver::DynamicsConstraint(robots(),
-                                                     robot().robotIndex(),
-                                                     solver().dt(),
-                                                     {0.1, 0.01, 0.5}));
+  dynamicsConstraint.reset(
+      new mc_solver::DynamicsConstraint(robots(), robot().robotIndex(), solver().dt(), {0.1, 0.01, 0.5}));
   // Must be added to the solver before controller reset
   solver().addConstraintSet(dynamicsConstraint);
   mc_control::fsm::Controller::reset(reset_data);
 
   // Mobile base position task
-  if(!config_.has("mobileBaseTask")){
+  if(!config_.has("mobileBaseTask"))
+  {
     mc_rtc::log::error_and_throw<std::runtime_error>("PepperFSMController | mobileBaseTask config entry missing");
   }
   mobileBaseTask_ = mc_tasks::MetaTaskLoader::load<mc_tasks::EndEffectorTask>(solver(), config_("mobileBaseTask"));
   solver().addTask(mobileBaseTask_);
 
   // Load relative CoM task
-  if(config_.has("comTask")){
+  if(config_.has("comTask"))
+  {
     comTask_ = mc_tasks::MetaTaskLoader::load<mc_pepper::CoMRelativeBodyTask>(solver(), config_("comTask"));
     solver().addTask(comTask_);
 
     // CoM projection plot
-    if(config_("comPlot", false)){
-      gui()->addXYPlot(
-          "Center of Mass projection",
-          mc_rtc::gui::plot::XY("CoM model", [this]() { return robot().com()[0] - robot().posW().translation()[0]; },
-                                             [this]() { return robot().com()[1] - robot().posW().translation()[1]; }, Color(1, 0.5, 0), Style::Point),
-          mc_rtc::gui::plot::XY("CoM real", [this]() { return realRobot().com()[0] - realRobot().posW().translation()[0]; },
-                                            [this]() { return realRobot().com()[1] - realRobot().posW().translation()[1]; }, Color::Red, Style::Point),
-          mc_rtc::gui::plot::XY("CoM target", [this]() { return comTask_->target()[0]; }, [this]() { return comTask_->target()[1]; }, Color::Green, Style::Point),
-          mc_rtc::gui::plot::Polygon("Support", []() { return PolygonDescription({{0.09, -0.155}, {-0.17, 0}, {0.09, 0.155}}, Color::Blue); }));
+    if(config_("comPlot", false))
+    {
+      gui()->addXYPlot("Center of Mass projection",
+                       mc_rtc::gui::plot::XY(
+                           "CoM model", [this]() { return robot().com()[0] - robot().posW().translation()[0]; },
+                           [this]() { return robot().com()[1] - robot().posW().translation()[1]; }, Color(1, 0.5, 0),
+                           Style::Point),
+                       mc_rtc::gui::plot::XY(
+                           "CoM real", [this]() { return realRobot().com()[0] - realRobot().posW().translation()[0]; },
+                           [this]() { return realRobot().com()[1] - realRobot().posW().translation()[1]; }, Color::Red,
+                           Style::Point),
+                       mc_rtc::gui::plot::XY(
+                           "CoM target", [this]() { return comTask_->target()[0]; },
+                           [this]() { return comTask_->target()[1]; }, Color::Green, Style::Point),
+                       mc_rtc::gui::plot::Polygon("Support", []() {
+                         return PolygonDescription({{0.09, -0.155}, {-0.17, 0}, {0.09, 0.155}}, Color::Blue);
+                       }));
     }
   }
 
   // Check robot devices
-  if(config_.has("speakerDeviceName")){
+  if(config_.has("speakerDeviceName"))
+  {
     std::string deviceName = config_("speakerDeviceName");
-    if(robot().hasDevice<mc_pepper::Speaker>(deviceName)){
+    if(robot().hasDevice<mc_pepper::Speaker>(deviceName))
+    {
       speakerDeviceName_ = deviceName;
-    }else{
+    }
+    else
+    {
       mc_rtc::log::warning("PepperFSMController | robot has no device named {}", deviceName);
     }
   }
-  if(config_.has("tabletDeviceName")){
+  if(config_.has("tabletDeviceName"))
+  {
     std::string deviceName = config_("tabletDeviceName");
-    if(robot().hasDevice<mc_pepper::VisualDisplay>(deviceName)){
+    if(robot().hasDevice<mc_pepper::VisualDisplay>(deviceName))
+    {
       tabletDeviceName_ = deviceName;
-    }else{
+    }
+    else
+    {
       mc_rtc::log::warning("PepperFSMController | robot has no device named {}", deviceName);
     }
   }
-  if(config_.has("bumperSensorNames")){
+  if(config_.has("bumperSensorNames"))
+  {
     std::vector<std::string> deviceNames = config_("bumperSensorNames");
-    if(deviceNames.size() == 3){
-      for(unsigned int i = 0; i < deviceNames.size(); i++){
-        if(robot().hasDevice<mc_pepper::TouchSensor>(deviceNames[i])){
+    if(deviceNames.size() == 3)
+    {
+      for(unsigned int i = 0; i < deviceNames.size(); i++)
+      {
+        if(robot().hasDevice<mc_pepper::TouchSensor>(deviceNames[i]))
+        {
           bumperSensorNames_.push_back(deviceNames[i]);
-        }else{
+        }
+        else
+        {
           mc_rtc::log::warning("PepperFSMController | robot has no device named {}", deviceNames[i]);
         }
       }
@@ -103,42 +126,42 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   }
 
   // Set up log
-  auto getBaseTau = [this]() -> const std::vector<double> &{
+  auto getBaseTau = [this]() -> const std::vector<double> & {
     static std::vector<double> tauOut(robot().mbc().jointTorque[0].size());
     solver().fillTorque(*dynamicsConstraint);
-    for(size_t i = 0; i < tauOut.size(); ++i){
+    for(size_t i = 0; i < tauOut.size(); ++i)
+    {
       tauOut[i] = robot().mbc().jointTorque[0][i];
     }
     return tauOut;
   };
-  auto getBaseAlphaD = [this]() -> const std::vector<double> &{
+  auto getBaseAlphaD = [this]() -> const std::vector<double> & {
     static std::vector<double> alphaDOut(robot().mbc().alphaD[0].size());
-    for(size_t i = 0; i < alphaDOut.size(); ++i){
+    for(size_t i = 0; i < alphaDOut.size(); ++i)
+    {
       alphaDOut[i] = robot().mbc().alphaD[0][i];
     }
     return alphaDOut;
   };
-  auto getBaseAlpha = [this]() -> const std::vector<double> &{
+  auto getBaseAlpha = [this]() -> const std::vector<double> & {
     static std::vector<double> alphaOut(robot().mbc().alpha[0].size());
-    for(size_t i = 0; i < alphaOut.size(); ++i){
+    for(size_t i = 0; i < alphaOut.size(); ++i)
+    {
       alphaOut[i] = robot().mbc().alpha[0][i];
     }
     return alphaOut;
   };
-  auto getBaseQ = [this]() -> const std::vector<double> &{
+  auto getBaseQ = [this]() -> const std::vector<double> & {
     static std::vector<double> qOut(robot().mbc().q[0].size());
-    for(size_t i = 0; i < qOut.size(); ++i){
+    for(size_t i = 0; i < qOut.size(); ++i)
+    {
       qOut[i] = robot().mbc().q[0][i];
     }
     return qOut;
   };
 
-  logger().addLogEntry(
-      "base_tau", [getBaseTau]() -> const std::vector<double> & { return getBaseTau(); });
-  logger().addLogEntry(
-      "base_alphaD", [getBaseAlphaD]() -> const std::vector<double> & { return getBaseAlphaD(); });
-  logger().addLogEntry(
-      "base_alpha", [getBaseAlpha]() -> const std::vector<double> & { return getBaseAlpha(); });
-  logger().addLogEntry(
-      "base_q", [getBaseQ]() -> const std::vector<double> & { return getBaseQ(); });
+  logger().addLogEntry("base_tau", [getBaseTau]() -> const std::vector<double> & { return getBaseTau(); });
+  logger().addLogEntry("base_alphaD", [getBaseAlphaD]() -> const std::vector<double> & { return getBaseAlphaD(); });
+  logger().addLogEntry("base_alpha", [getBaseAlpha]() -> const std::vector<double> & { return getBaseAlpha(); });
+  logger().addLogEntry("base_q", [getBaseQ]() -> const std::vector<double> & { return getBaseQ(); });
 }
