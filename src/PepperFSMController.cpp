@@ -39,9 +39,10 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   robot().tu()[0] = {0, 0, inf, inf, inf, 0};
 
   // Update dynamics constraints
-  dynamicsConstraint = mc_solver::DynamicsConstraint(robots(),
+  dynamicsConstraint.reset(new mc_solver::DynamicsConstraint(robots(),
                                                      robot().robotIndex(),
-                                                     solver().dt(), {0.1, 0.01, 0.5});
+                                                     solver().dt(),
+                                                     {0.1, 0.01, 0.5}));
   // Must be added to the solver before controller reset
   solver().addConstraintSet(dynamicsConstraint);
   mc_control::fsm::Controller::reset(reset_data);
@@ -104,7 +105,7 @@ void PepperFSMController::reset(const mc_control::ControllerResetData & reset_da
   // Set up log
   auto getBaseTau = [this]() -> const std::vector<double> &{
     static std::vector<double> tauOut(robot().mbc().jointTorque[0].size());
-    solver().fillTorque(dynamicsConstraint);
+    solver().fillTorque(*dynamicsConstraint);
     for(size_t i = 0; i < tauOut.size(); ++i){
       tauOut[i] = robot().mbc().jointTorque[0][i];
     }
